@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="renderer" content="webkit" />
+
+  <title>Time-Space Shuttle — Precise Online World Clock (Millisecond Accuracy)</title>
+  <meta name="keywords" content="timespaceshuttle, Time-Space Shuttle, world clock, online clock, precise time, UTC, time zones, millisecond accuracy, Beijing time, Asia/Shanghai" />
+  <meta name="description" content="Time-Space Shuttle offers a precise online world clock with millisecond accuracy. Switch any time zone, including UTC and Asia/Shanghai. Ideal for calibration, QA, and time-sensitive work." />
+  <link rel="canonical" href="https://timespaceshuttle.com/">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="Time-Space Shuttle — Precise Online World Clock" />
+  <meta property="og:description" content="Millisecond-accurate world clock with timezone switching (UTC, Asia/Shanghai and more)." />
+  <meta property="og:url" content="https://timespaceshuttle.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://timespaceshuttle.com/icons/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Time-Space Shuttle — World Clock (ms)" />
+  <meta name="twitter:description" content="Millisecond-accurate world clock with timezone switching." />
+  <meta name="twitter:image" content="https://timespaceshuttle.com/icons/og-image.png" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180.png">
+
+  <style>
+    :root{
+      --bg:#f4f4f4;
+      --fg:#444;
+      --muted:#666;
+      --panel:#2f2f2f;
+      --panel-2:#3c3c3c;
+      --border:#595959;
+      --card-w:min(92vw, 560px);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"PingFang SC","Noto Sans",sans-serif;
+      background:var(--bg);
+      margin:0; padding:0 12px 90px; /* 预留底部空间 */
+      display:flex; flex-direction:column; align-items:center;
+      color:var(--fg);
+    }
+
+    .topbar{
+      position:relative;
+      width:100%;
+      max-width:1100px;
+      margin:10px auto 6px;
+      text-align:center;
+      color:var(--muted);
+      font-size:16px;
+      line-height:1.45;
+    }
+
+    /* 语言下拉（右上角） */
+    .lang{ position:absolute; right:0; top:0; user-select:none; }
+    .lang-toggle{
+      display:flex; align-items:center; gap:6px;
+      padding:8px 12px; border:1px solid #bbb; border-radius:10px;
+      background:#fff; cursor:pointer; font-size:14px; min-width:64px; justify-content:center;
+      color:var(--fg);
+    }
+    .lang-toggle .caret{font-size:12px; opacity:.75}
+    .lang-menu{
+      position:absolute; right:0; margin-top:6px;
+      background:#fff; border:1px solid #ddd; border-radius:12px;
+      box-shadow:0 10px 20px rgba(0,0,0,.12);
+      padding:6px; display:none; z-index:20; min-width:160px;
+    }
+    .lang.open .lang-menu{display:block}
+    .lang-item{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:10px; cursor:pointer; font-size:14px; color:var(--fg);
+    }
+    .lang-item:hover{background:#f2f2f2}
+    .flag{width:18px; text-align:center}
+
+    /* 广告位：保持高度，占位但完全隐身 */
+    .ad-top, .ad-bottom{
+      width:100%; max-width:1100px;
+      height:100px;                /* 无广告也不塌陷 */
+      margin:10px auto 0;
+      border:none; background:transparent; color:transparent;
+      pointer-events:none;
+    }
+    .ad-bottom{ margin:8px auto 10px; }
+
+    h1{
+      color:#333; margin:16px 0 6px; text-align:center;
+      font-weight:800; letter-spacing:.3px;
+    }
+
+    .controls{
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center;
+      color:var(--muted); font-size:15px; margin-bottom:10px;
+    }
+    label{opacity:.95}
+    select,button{
+      padding:8px 12px; border:1px solid #bbb; border-radius:10px; background:#fff; font-size:14px; cursor:pointer; color:var(--fg);
+    }
+    select:hover, button:hover{border-color:#888}
+
+    #clock{
+      font-variant-numeric:tabular-nums;
+      font-size:56px; color:#fff; padding:22px;
+      background:var(--panel);
+      border:2px solid var(--border); border-radius:16px;
+      width:var(--card-w); min-height:120px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 6px 12px rgba(0,0,0,.18);
+      margin:12px auto 10px;
+      letter-spacing:1px;
+    }
+    #date{
+      font-size:20px; color:#fff; padding:14px;
+      background:var(--panel-2);
+      border:2px solid var(--border); border-radius:16px;
+      width:var(--card-w);
+      display:flex; align-items:center; justify-content:center; text-align:center;
+      box-shadow:0 6px 12px rgba(0,0,0,.18);
+      margin:6px auto 4px;
+    }
+    #note{ color:var(--muted); font-size:14px; text-align:center; margin:10px 0 14px }
+
+    #links{
+      position:fixed; left:0; right:0; bottom:10px;
+      text-align:center; color:var(--muted); font-size:14px; padding:0 12px;
+    }
+    a{ color:#666; text-decoration:none; margin:0 8px }
+    a:hover{ text-decoration:underline }
+
+    @media (max-width:520px){
+      #clock{font-size:46px; min-height:104px}
+      #date{font-size:18px}
+      .ad-top, .ad-bottom{height:90px}
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部说明 + 语言下拉 -->
+  <div class="topbar">
+    <div id="intro">A precise online clock with millisecond accuracy. Select any time zone below.</div>
+    <div class="lang" id="lang">
+      <div class="lang-toggle" id="langToggle">
+        <span class="flag" id="langFlag">🇺🇸</span>
+        <span id="langCode">EN</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="lang-menu" id="langMenu" role="menu" aria-label="Language">
+        <div class="lang-item" data-lang="en"><span class="flag">🇺🇸</span><span>EN · English</span></div>
+        <div class="lang-item" data-lang="zh"><span class="flag">🇨🇳</span><span>ZH · 中文</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 顶部广告位（隐身占位） -->
+  <div class="ad-top" id="ad-top"></div>
+
+  <h1 id="title">World Clock (ms)</h1>
+
+  <div class="controls">
+    <label for="tz" id="label-tz">Time zone:</label>
+    <select id="tz" aria-label="Select time zone"></select>
+    <button id="btn-utc" type="button" title="Switch to UTC">UTC</button>
+    <button id="btn-sh" type="button">Asia/Shanghai</button>
+    <button id="btn-local" type="button" title="Use system time zone">System (local)</button>
+  </div>
+
+  <div id="clock" aria-live="polite" aria-atomic="true"></div>
+  <div id="date"></div>
+  <div id="note">Times are provided for reference. Minor drift may occur depending on your device clock.</div>
+
+  <!-- 底部广告位（隐身占位） -->
+  <div class="ad-bottom" id="ad-bottom"></div>
+
+  <div id="links">
+    <span id="links-label">Links:</span>
+    <a href="https://time.is/" target="_blank" rel="noopener">time.is</a> |
+    <a href="https://www.timeanddate.com/worldclock/" target="_blank" rel="noopener">World Clock</a> |
+    <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" target="_blank" rel="noopener">About UTC</a> |
+    <a href="https://www.iana.org/time-zones" target="_blank" rel="noopener">IANA Time Zone DB</a> |
+    <a href="https://beijingshijian.256cha.com/" target="_blank" rel="noopener">Beijing Standard Time</a>
+  </div>
+
+  <script>
+    /* i18n 文案 */
+    const I18N = {
+      en: {
+        htmlLang: 'en',
+        intro: 'A precise online clock with millisecond accuracy. Select any time zone below.',
+        title: 'World Clock (ms)',
+        labelTz: 'Time zone:',
+        btnUtc: 'UTC',
+        btnSh: 'Asia/Shanghai',
+        btnLocal: 'System (local)',
+        note: 'Times are provided for reference. Minor drift may occur depending on your device clock.',
+        links: 'Links:',
+        seoTitle: 'Time-Space Shuttle — Precise Online World Clock (Millisecond Accuracy)',
+        seoDesc: 'Time-Space Shuttle offers a precise online world clock with millisecond accuracy. Switch any time zone, including UTC and Asia/Shanghai. Ideal for calibration, QA, and time-sensitive work.',
+        seoKeywords: 'timespaceshuttle, Time-Space Shuttle, world clock, online clock, precise time, UTC, time zones, millisecond accuracy, Beijing time, Asia/Shanghai',
+        flag: '🇺🇸', code: 'EN'
+      },
+      zh: {
+        htmlLang: 'zh-CN',
+        intro: '毫秒级精准的在线世界时钟，支持选择任意时区。',
+        title: '世界时钟（毫秒级）',
+        labelTz: '时区：',
+        btnUtc: '世界标准时（UTC）',
+        btnSh: '亚洲/上海',
+        btnLocal: '系统本地',
+        note: '时间仅供参考，具体以您的设备时钟为准，可能存在轻微漂移。',
+        links: '链接：',
+        seoTitle: 'Time-Space Shuttle — 精准在线世界时钟（毫秒级）',
+        seoDesc: 'Time-Space Shuttle 提供毫秒级精度的在线世界时钟。可切换任意时区（含 UTC 与亚洲/上海），适用于校准、测试与时间敏感场景。',
+        seoKeywords: 'timespaceshuttle, 世界时钟, 在线时钟, 毫秒级, 精准时间, UTC, 时区, 北京时间, 亚洲/上海',
+        flag: '🇨🇳', code: '中文'
+      }
+    };
+
+    function setLang(lang){
+      const t = I18N[lang] || I18N.en;
+      document.documentElement.lang = t.htmlLang;
+      document.title = t.seoTitle;
+      const setMeta = (name, content) => {
+        let el = document.querySelector(`meta[name="${name}"]`);
+        if (!el){ el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+        el.setAttribute('content', content);
+      };
+      setMeta('description', t.seoDesc);
+      setMeta('keywords', t.seoKeywords);
+
+      document.getElementById('intro').textContent = t.intro;
+      document.getElementById('title').textContent = t.title;
+      document.getElementById('label-tz').textContent = t.labelTz;
+      document.getElementById('btn-utc').textContent = t.btnUtc;
+      document.getElementById('btn-sh').textContent = t.btnSh;
+      document.getElementById('btn-local').textContent = t.btnLocal;
+      document.getElementById('note').textContent = t.note;
+      document.getElementById('links-label').textContent = t.links;
+
+      document.getElementById('langFlag').textContent = t.flag;
+      document.getElementById('langCode').textContent = t.code;
+
+      localStorage.setItem('worldclock_lang', lang);
+      currentLang = lang;
+      tick();
+    }
+
+    /* 语言下拉交互 */
+    const langEl = document.getElementById('lang');
+    document.getElementById('langToggle').addEventListener('click', e => {
+      e.stopPropagation();
+      langEl.classList.toggle('open');
+    });
+    document.querySelectorAll('.lang-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const lang = item.getAttribute('data-lang');
+        setLang(lang);
+        langEl.classList.remove('open');
+      });
+    });
+    document.addEventListener('click', () => langEl.classList.remove('open'));
+
+    /* 时钟逻辑（原样） */
+    const $ = (id) => document.getElementById(id);
+
+    function getAllTimeZones() {
+      if (typeof Intl.supportedValuesOf === 'function') {
+        try { return Intl.supportedValuesOf('timeZone'); } catch (_) {}
+      }
+      return [
+        'UTC','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow',
+        'America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo',
+        'Africa/Cairo','Africa/Johannesburg',
+        'Asia/Shanghai','Asia/Tokyo','Asia/Seoul','Asia/Singapore','Asia/Dubai','Asia/Kolkata',
+        'Australia/Sydney','Pacific/Auckland'
+      ];
+    }
+
+    function nowInZone(tz) {
+      const now = Date.now();
+      if (!tz || tz === 'local') return new Date(now);
+      const s = new Date(now).toLocaleString('en-US', { timeZone: tz });
+      const d = new Date(s);
+      d.setMilliseconds(now % 1000);
+      return d;
+    }
+
+    function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+    function pad3(n){ if (n < 10) return '00'+n; if (n < 100) return '0'+n; return ''+n; }
+
+    function formatDateLine(d, tzLabel, tz, lang) {
+      const fmt = new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : (navigator.language || 'en-US'), {
+        year:'numeric', month:'long', day:'2-digit',
+        weekday:'long', timeZone: tz === 'local' ? undefined : tz,
+        timeZoneName:'short'
+      });
+      const parts = fmt.formatToParts(d);
+      const text = parts.map(p => p.value).join('');
+      return `${text} ${tzLabel ? '('+tzLabel+')' : ''}`;
+    }
+
+    const tzSelect = $('tz');
+    const allTZ = getAllTimeZones();
+
+    const localOpt = document.createElement('option');
+    localOpt.value = 'local';
+    localOpt.textContent = 'System (local)';
+    tzSelect.appendChild(localOpt);
+
+    ['UTC','Asia/Shanghai'].forEach(z => { if (!allTZ.includes(z)) allTZ.unshift(z); });
+    for (const z of allTZ){
+      const opt = document.createElement('option');
+      opt.value = z; opt.textContent = z;
+      tzSelect.appendChild(opt);
+    }
+
+    tzSelect.value = 'local';
+    const savedTZ = localStorage.getItem('worldclock_tz');
+    if (savedTZ) tzSelect.value = savedTZ;
+
+    $('btn-utc').onclick  = () => { tzSelect.value = 'UTC'; tick(); };
+    $('btn-sh').onclick   = () => { tzSelect.value = 'Asia/Shanghai'; tick(); };
+    $('btn-local').onclick= () => { tzSelect.value = 'local'; tick(); };
+
+    tzSelect.addEventListener('change', () => {
+      localStorage.setItem('worldclock_tz', tzSelect.value);
+      tick();
+    });
+
+    let currentLang = localStorage.getItem('worldclock_lang') || 'en';
+    setLang(currentLang);
+
+    function tick(){
+      const tz = tzSelect.value || 'local';
+      const d = nowInZone(tz);
+      const hh = pad2(d.getHours());
+      const mm = pad2(d.getMinutes());
+      const ss = pad2(d.getSeconds());
+      const ms = pad3(d.getMilliseconds());
+      $('clock').textContent = `${hh}:${mm}:${ss}.${ms}`;
+      const label = tz === 'local' ? (currentLang === 'zh' ? '本地' : 'local') : tz;
+      $('date').textContent = formatDateLine(d, label, tz, currentLang);
+    }
+
+    let timer = null;
+
+	function startTimer() {
+	  if (timer) clearInterval(timer);
+	  timer = setInterval(tick, 10);
+	}
+
+	function stopTimer() {
+	  if (timer) { clearInterval(timer); timer = null; }
+	}
+
+	// 初始启动
+	tick();
+	startTimer();
+
+	// 前后台切换：隐藏时停，返回时重启
+	document.addEventListener('visibilitychange', () => {
+	  if (document.hidden) {
+		stopTimer();
+	  } else {
+		tick();      // 先立刻刷新一次，避免回到前台时显示旧时间
+		startTimer();
+	  }
+	});
+
+	// 兼容 iOS/Safari 等页面缓存/冻结
+	window.addEventListener('pageshow', () => { tick(); startTimer(); });
+	window.addEventListener('pagehide', () => { stopTimer(); });
+
+  </script>
+</body>
+</html>
